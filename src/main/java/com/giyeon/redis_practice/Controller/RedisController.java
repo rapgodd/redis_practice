@@ -11,21 +11,9 @@ public class RedisController {
 
     private final RedisService redisService;
 
-    @PostMapping("/string")
+    @PostMapping("/master/replica")
     public void redisString(){
-        redisService.redisString();
-    }
-
-
-    @PostMapping("/integer")
-    public void redisInteger(){
-        redisService.redisInteger();
-    }
-
-
-    @PostMapping("/json")
-    public void redisJson(){
-        redisService.redisJson();
+        redisService.redisMasterReplica();
     }
 
 

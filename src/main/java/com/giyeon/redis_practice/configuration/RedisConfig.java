@@ -1,62 +1,62 @@
 package com.giyeon.redis_practice.configuration;
 
+import io.lettuce.core.ReadFrom;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.RedisStaticMasterReplicaConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @EnableCaching
 public class RedisConfig {
     @Value("${spring.data.redis.host}")
-    private String host;
+    private String masterHost;
 
     @Value("${spring.data.redis.port}")
-    private int port;
+    private int masterPort;
+
+    @Value("${spring.data.redis.replica.host}")
+    private String replicaHost;
+
+    @Value("${spring.data.redis.replica.port}")
+    private int replicaPort;
+
+
 
     @Bean
     public LettuceConnectionFactory redisConn(){
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
+
+        RedisStaticMasterReplicaConfiguration replicaConfig
+                = new RedisStaticMasterReplicaConfiguration(masterHost, masterPort);
+        replicaConfig.addNode(replicaHost, replicaPort);
+
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                .readFrom(ReadFrom.REPLICA_PREFERRED)
+                .build();
+
+        return new LettuceConnectionFactory(replicaConfig, clientConfig);
+
     }
 
     @Bean
-    public RedisTemplate<String,String> redisStringTemplate(RedisConnectionFactory redisConnectionFactory){
+    public RedisTemplate<String, String> redisTemplate(){
         RedisTemplate<String, String> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
-        return template;
-    }
+        template.setConnectionFactory(redisConn());
 
-
-    @Bean
-    public RedisTemplate<String,Object> redisJsonTemplate(RedisConnectionFactory redisConnectionFactory){
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
-
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setHashKeySerializer(new StringRedisSerializer());
-
-        template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        StringRedisSerializer stringSerializer = new StringRedisSerializer();
+        template.setKeySerializer(stringSerializer);
+        template.setValueSerializer(stringSerializer);
+        template.setHashKeySerializer(stringSerializer);
+        template.setHashValueSerializer(stringSerializer);
 
         return template;
     }
 
-    @Bean
-    public RedisTemplate<String,Integer> redisIntegerTemplate(RedisConnectionFactory redisConnectionFactory){
-        RedisTemplate<String, Integer> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericToStringSerializer<>(Integer.class));
-        return template;
-    }
+
 
 }

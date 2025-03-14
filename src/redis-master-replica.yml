@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  redis-master:
+    image: redis:latest
+    container_name: redis-master
+    ports:
+      - "6379:6379"
+
+  redis-replica:
+    image: redis:latest
+    container_name: redis-replica
+    ports:
+      - "6380:6379"
