@@ -1,6 +1,9 @@
 package com.giyeon.redis_practice.configuration;
 
 import io.lettuce.core.ReadFrom;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -56,6 +59,17 @@ public class RedisConfig {
 
         return template;
     }
+
+
+    @Bean
+    public RedissonClient redissonClient() {
+        Config config = new Config();
+        config.useSingleServer()
+                .setAddress("redis://" + masterHost + ":" + masterPort)
+                .setPassword(null);
+        return Redisson.create(config);
+    }
+
 
 
 
