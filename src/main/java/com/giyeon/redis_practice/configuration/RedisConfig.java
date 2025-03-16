@@ -1,6 +1,6 @@
 package com.giyeon.redis_practice.configuration;
 
-import io.lettuce.core.ReadFrom;
+import com.giyeon.redis_practice.service.RedisMessageSubscriber;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -8,10 +8,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisStaticMasterReplicaConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -29,23 +32,15 @@ public class RedisConfig {
     @Value("${spring.data.redis.replica.port}")
     private int replicaPort;
 
-
-
     @Bean
     public LettuceConnectionFactory redisConn(){
-
-        RedisStaticMasterReplicaConfiguration replicaConfig
-                = new RedisStaticMasterReplicaConfiguration(masterHost, masterPort);
-        replicaConfig.addNode(replicaHost, replicaPort);
-
-        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-                .readFrom(ReadFrom.REPLICA_PREFERRED)
-                .build();
-
-        return new LettuceConnectionFactory(replicaConfig, clientConfig);
-
+        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(masterHost, masterPort));
     }
 
+
+    /**
+     * Redis Template
+     */
     @Bean
     public RedisTemplate<String, String> redisTemplate(){
         RedisTemplate<String, String> template = new RedisTemplate<>();
@@ -60,7 +55,11 @@ public class RedisConfig {
         return template;
     }
 
+////////////////////////////
 
+    /**
+     * RedissonClient
+     */
     @Bean
     public RedissonClient redissonClient() {
         Config config = new Config();
@@ -70,7 +69,31 @@ public class RedisConfig {
         return Redisson.create(config);
     }
 
+////////////////////////////
 
+    /**
+     * PUB/SUB
+     */
+    @Bean
+    public ChannelTopic channelTopic(){
+        return new ChannelTopic("ExampleTopic");
+    }
+
+    @Bean
+    public MessageListenerAdapter messageListenerAdapter(RedisMessageSubscriber subscriber){
+        return new MessageListenerAdapter(subscriber);
+    }
+
+    @Bean
+    public RedisMessageListenerContainer redisMessageListenerCOntainer(
+            RedisConnectionFactory connectionFactory,
+            MessageListenerAdapter messageListenerAdapter,
+            ChannelTopic channelTopic){
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(messageListenerAdapter, channelTopic);
+        return container;
+    }
 
 
 }
