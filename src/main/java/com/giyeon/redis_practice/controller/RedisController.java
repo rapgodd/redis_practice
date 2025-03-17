@@ -1,4 +1,4 @@
-package com.giyeon.redis_practice.Controller;
+package com.giyeon.redis_practice.controller;
 
 import com.giyeon.redis_practice.service.RedisService;
 import lombok.RequiredArgsConstructor;

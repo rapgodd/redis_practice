@@ -1,6 +1,7 @@
 package com.giyeon.redis_practice.configuration;
 
 import com.giyeon.redis_practice.service.RedisMessageSubscriber;
+import io.lettuce.core.RedisClient;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -94,6 +95,12 @@ public class RedisConfig {
         container.addMessageListener(messageListenerAdapter, channelTopic);
         return container;
     }
-
-
+////////////////////////////
+    /**
+     * RedisClient
+     */
+    @Bean
+    public RedisClient redisClient(){
+        return RedisClient.create("redis://" + masterHost + ":" + masterPort);
+    }
 }

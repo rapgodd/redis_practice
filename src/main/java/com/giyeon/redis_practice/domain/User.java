@@ -1,15 +1,15 @@
 package com.giyeon.redis_practice.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
-@NoArgsConstructor
 @Table(name = "users")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -22,4 +22,5 @@ public class User {
         this.name = name;
         this.age = age;
     }
+
 }

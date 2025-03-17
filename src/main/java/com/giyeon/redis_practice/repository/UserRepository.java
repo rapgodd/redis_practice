@@ -15,6 +15,10 @@ public class UserRepository {
         em.persist(user);
     }
 
+    public void update(User user){
+        em.merge(user);
+    }
+
     public User find(Long id){
         return em.find(User.class, id);
     }
