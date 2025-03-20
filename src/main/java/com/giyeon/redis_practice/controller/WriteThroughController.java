@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 public class WriteThroughController {
@@ -15,8 +17,8 @@ public class WriteThroughController {
     private final WriteThroughService writeThroughService;
 
     @PostMapping("/writeThrough")
-    public AnswerDto writeThrough(@RequestBody UserRequestDto userNameDto) throws InterruptedException {
-        return writeThroughService.writeThrough(userNameDto);
+    public AnswerDto writeThrough(@RequestBody UserRequestDto userNameDto) throws InterruptedException, IOException {
+        return writeThroughService.writeThroughRedisson(userNameDto);
     }
 
 }

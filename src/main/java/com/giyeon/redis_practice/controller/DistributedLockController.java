@@ -11,7 +11,6 @@ public class DistributedLockController {
 
     private final DistributeLockService distributeLockService;
 
-
     @PostMapping("/distributed/lock/thread/one")
     public void distributedLockThreadOne(){
         distributeLockService.distributedLock();

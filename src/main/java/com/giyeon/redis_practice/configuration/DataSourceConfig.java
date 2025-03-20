@@ -13,7 +13,7 @@ public class DataSourceConfig {
     @Bean
     public DataSource dataSource(){
         HikariConfig hc = new HikariConfig();
-        hc.setJdbcUrl("jdbc:mysql://localhost/mydb");
+        hc.setJdbcUrl("jdbc:mysql://redis-practice:3306/mydb");
         hc.setUsername("root");
         hc.setPassword("password");
         hc.setDriverClassName("com.mysql.cj.jdbc.Driver");

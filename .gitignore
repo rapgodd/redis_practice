@@ -37,3 +37,4 @@ out/
 .vscode/
 #application.yml 무시 상대경로
 src/main/resources/application.yml
+mysql_data

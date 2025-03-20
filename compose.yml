@@ -1,0 +1,94 @@
+version: "3.8"
+
+services:
+  my-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - redis-cluster
+    ports:
+      - 8080:8080
+    environment:
+      REDIS_CLUSTER_NODES: "redis-node-1:6379,redis-node-2:6380,redis-node-3:6381,redis-node-4:6382,redis-node-5:6383,redis-node-6:6384"
+      REDIS_CLUSTER_MAX_REDIRECTS: 3
+    depends_on:
+      redis-node-1:
+        condition: service_healthy
+      redis-practice:
+        condition: service_healthy
+
+
+  redis-practice:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: mydb
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping" ]
+      interval: 5s
+      retries: 10
+    networks:
+      - redis-cluster
+
+
+  redis-node-1:
+    image: redis:latest
+    command: ["--cluster-enabled", "yes"]
+    networks:
+      - redis-cluster
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+
+  redis-node-2:
+    image: redis:latest
+    command: ["--cluster-enabled", "yes"]
+    networks:
+      - redis-cluster
+    ports:
+      - "6380:6379"
+
+  redis-node-3:
+    image: redis:latest
+    command: ["--cluster-enabled", "yes"]
+    networks:
+      - redis-cluster
+    ports:
+      - "6381:6379"
+
+  redis-node-4:
+    image: redis:latest
+    command: ["--cluster-enabled", "yes"]
+    networks:
+      - redis-cluster
+    ports:
+      - "6382:6379"
+
+  redis-node-5:
+    image: redis:latest
+    command: ["--cluster-enabled", "yes"]
+    networks:
+      - redis-cluster
+    ports:
+      - "6383:6379"
+
+  redis-node-6:
+    image: redis:latest
+    command: ["--cluster-enabled", "yes"]
+    networks:
+      - redis-cluster
+    ports:
+      - "6384:6379"
+
+networks:
+  redis-cluster:
+    driver: bridge
