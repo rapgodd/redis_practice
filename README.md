@@ -1,5 +1,7 @@
 # Cluster 레플리카 노드 백업 테스트
 
+
+
 ### 1. 6개 레디스 컴포즈파일로 생성
 
 ### 2. Redis node 1번에 접속 그리고 클러스터 설정 후 레플리카 비율 설정
@@ -112,3 +114,7 @@ redis-cli --cluster add-node src-redis-node-8-1:6379 src-redis-node-7-1:6379
 참고 : cluster keyslot key
       - "키의 해시함수 적용 % 16384" 한 값 출력.
 ```
+---
+
+### 노션 추가 정리 
+#### link : [https://nimble-volcano-09b.notion.site/Redis-1c029e579e0b80388903e413e64cc07d?pvs=74]
